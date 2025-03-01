@@ -1,16 +1,58 @@
-# local_database
 
-A new Flutter project.
+## SQFLite CRUD operation
 
-## Getting Started
+Here is my SQFLite crud operation code
 
-This project is a starting point for a Flutter application.
+Video PlayList: [Flutter Plabs](https://www.youtube.com/playlist?list=PL_flqTNT2bUlT1AKFkLBeDyvv1Hp10lfK)
+```dart
+  
 
-A few resources to get you started if this is your first Flutter project:
+Database? _database;
+List WholeDataList=[];
+class LocalDatabase {
+  Future get database async {
+    if (_database != null) return _database;
+    _database = await _initializeDB('Local.db');
+    return _database;
+  }
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+  Future _initializeDB(String filepath) async {
+    final dbpath = await getDatabasesPath();
+    final path = join(dbpath, filepath);
+    return await openDatabase(path, version: 1, onCreate: _createDB);
+  }
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+  Future _createDB(Database db, int version) async {
+    await db.execute('''
+CREATE TABLE LocalData(id INTEGER PRIMARY KEY,
+Name TEXT NOT NULL
+)
+''');
+  }
+  Future addDataLocaly({Name}) async{
+    final db = await database;
+    await db.insert("LocalData", {"Name" : Name});
+    print('${Name} Added database');
+    return 'added';
+  }
+  Future readalldata() async{
+    final db= await database;
+    final alldata= await db!.query("LocalData");
+    WholeDataList=alldata;
+    print(WholeDataList);
+    return 'successfull read';
+  }
+  Future updateData({Name,id}) async{
+    final db=await database;
+    int dbupdateid= await db.rawUpdate('UPDATE LocalData SET Name=? Where id=?',[Name,id]);
+    return dbupdateid;
+  }
+  Future deleteData({id}) async{
+    final db= await database;
+    await db!.delete("LocalData", where: 'id=?',whereArgs: [id]);
+    print('deleted successfully ${id}');
+    return 'successfull deleted';
+  }
+}
+```
+    
